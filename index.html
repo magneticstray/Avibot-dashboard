@@ -157,11 +157,13 @@
     
     <p id="reset-message"></p>
   </div>
+<script>
+    // IMPORTANT: Replace this with the URL you got from Render!
+    const BACKEND_URL = "https://avibot-dashboard-api-nh7v.onrender.com"; 
 
-  <script>
     async function updateCounter() {
       try {
-        const res = await fetch("/get_count");
+        const res = await fetch(`${BACKEND_URL}/get_count`);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
         document.getElementById("zero").innerText = data.zero;
@@ -175,31 +177,30 @@
     async function resetCounter() {
       const resetMessageEl = document.getElementById("reset-message");
       try {
-        const response = await fetch("/reset", {
+        const response = await fetch(`${BACKEND_URL}/reset`, {
           method: "POST",
           headers: { "Content-Type": "application/json" }
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
         const result = await response.json();
-        updateCounter(); // Refresh the counts to show zeros
+        updateCounter(); 
         
-        // Display success message
         resetMessageEl.innerText = result.message || "Counters reset successfully!";
-        resetMessageEl.style.color = "#4caf50"; // Green for success
-        setTimeout(() => resetMessageEl.innerText = "", 3000); // Clear after 3s
+        resetMessageEl.style.color = "#4caf50";
+        setTimeout(() => resetMessageEl.innerText = "", 3000);
 
       } catch (err) {
         console.error("Failed to reset counter:", err);
         resetMessageEl.innerText = "Error resetting counters";
-        resetMessageEl.style.color = "#f44336"; // Red for error
+        resetMessageEl.style.color = "#f44336";
         setTimeout(() => resetMessageEl.innerText = "", 3000);
       }
     }
 
     async function sendValue(val) {
       try {
-        await fetch("/record", {
+        await fetch(`${BACKEND_URL}/record`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ value: val })
@@ -210,12 +211,10 @@
       }
     }
 
-    // Initial load and periodic updates
     document.addEventListener('DOMContentLoaded', () => {
         updateCounter();
         setInterval(updateCounter, 2000);
     });
   </script>
-
 </body>
 </html>
