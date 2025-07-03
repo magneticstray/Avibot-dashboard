@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Counter</title>
+  <title>Live Egg Counter</title>
   <style>
-    /* Global Styles & Font */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
     :root {
       --bg-color: #040411;
       --card-color: #16213e;
@@ -16,7 +14,6 @@
       --text-color: #dcdcdc;
       --font-family: 'Poppins', sans-serif;
     }
-
     body {
       margin: 0;
       font-family: var(--font-family);
@@ -29,8 +26,6 @@
       padding: 1rem;
       box-sizing: border-box;
     }
-
-    /* Main Dashboard Container */
     .dashboard-container {
       background-color: var(--card-color);
       padding: 2.5rem;
@@ -41,7 +36,6 @@
       max-width: 500px;
       border: 1px solid var(--primary-color);
     }
-
     h1 {
       font-size: 2.5rem;
       color: rgb(250, 246, 246);
@@ -49,49 +43,42 @@
       margin-bottom: 2rem;
       font-weight: 700;
     }
-
-    /* Grid for Counters */
     .counters-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
       margin-bottom: 2.5rem;
     }
-
     .counter-card {
       background-color: var(--primary-color);
       padding: 1.5rem;
       border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-
     .counter-card h2 {
       margin: 0 0 0.5rem 0;
       font-size: 1.2rem;
       font-weight: 400;
       color: var(--text-color);
     }
-
     .counter-card span {
       font-size: 3rem;
       font-weight: 700;
       color: white;
       line-height: 1;
     }
-    
-    /* Special style for the Total card */
     .total-card {
-      grid-column: 1 / -1; /* Make it span the full width */
+      grid-column: 1 / -1;
       background-color: #0e2a47;
     }
-
-    /* Button Styles */
     .button-group {
       display: flex;
-      flex-wrap: wrap;
+      flex-direction: column;
       gap: 1rem;
-      justify-content: center;
+      margin-top: 1rem;
     }
-
     .btn {
       font-family: var(--font-family);
       border: none;
@@ -101,32 +88,40 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease-in-out;
-      background-color: #5372F0; /* A brighter blue for primary actions */
       color: white;
-      flex-grow: 1;
     }
-    
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(83, 114, 240, 0.4);
     }
-
+    .add-btn {
+        background-color: #5372F0;
+    }
+    .add-btn:hover {
+        box-shadow: 0 4px 15px rgba(83, 114, 240, 0.4);
+    }
+    .reduce-btn {
+        background-color: #f0a053; /* Orange for reduce */
+    }
+    .reduce-btn:hover {
+        box-shadow: 0 4px 15px rgba(240, 160, 83, 0.4);
+    }
     .reset-btn {
       background-color: var(--accent-color);
       width: 100%;
     }
-    
     .reset-btn:hover {
       box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
     }
-    
-    /* Message Paragraph */
     #reset-message {
-        margin-top: 1.5rem;
-        font-weight: 600;
-        height: 24px; /* Reserve space to prevent layout shift */
+      margin-top: 1.5rem;
+      font-weight: 600;
+      height: 24px;
     }
-
+    .card-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -137,11 +132,19 @@
     <div class="counters-grid">
       <div class="counter-card">
         <h2>CRACKED EGGS</h2>
-        <span id="zero">0</span>
+        <span id="cracked">0</span>
+        <div class="card-actions">
+            <button onclick="sendValue(0)" class="btn add-btn">+</button>
+            <button onclick="reduceValue(0)" class="btn reduce-btn">-</button>
+        </div>
       </div>
       <div class="counter-card">
         <h2>UNCRACKED EGGS</h2>
-        <span id="one">0</span>
+        <span id="uncracked">0</span>
+        <div class="card-actions">
+            <button onclick="sendValue(1)" class="btn add-btn">+</button>
+            <button onclick="reduceValue(1)" class="btn reduce-btn">-</button>
+        </div>
       </div>
       <div class="counter-card total-card">
         <h2>TOTAL EGGS</h2>
@@ -150,24 +153,21 @@
     </div>
 
     <div class="button-group">
-      <button onclick="sendValue(0)" class="btn">Add to CRACKED EGGS</button>
-      <button onclick="sendValue(1)" class="btn">Add to UNCRACKED EGGS</button>
       <button onclick="resetCounter()" class="btn reset-btn">Reset Counters</button>
     </div>
     
     <p id="reset-message"></p>
   </div>
 <script>
-    // IMPORTANT: Replace this with the URL you got from Render!
-    const BACKEND_URL = "https://avibot-dashboard-api-nh7v.onrender.com"; 
+    const BACKEND_URL = "https://avibot-dashboard-api-nh7v.onrender.com";
 
     async function updateCounter() {
       try {
         const res = await fetch(`${BACKEND_URL}/get_count`);
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
-        document.getElementById("zero").innerText = data.zero;
-        document.getElementById("one").innerText = data.one;
+        document.getElementById("cracked").innerText = data.cracked;
+        document.getElementById("uncracked").innerText = data.uncracked;
         document.getElementById("total").innerText = data.total;
       } catch (err) {
         console.error("Failed to fetch counter:", err);
@@ -182,14 +182,11 @@
           headers: { "Content-Type": "application/json" }
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
         const result = await response.json();
-        updateCounter(); 
-        
+        updateCounter();
         resetMessageEl.innerText = result.message || "Counters reset successfully!";
         resetMessageEl.style.color = "#4caf50";
         setTimeout(() => resetMessageEl.innerText = "", 3000);
-
       } catch (err) {
         console.error("Failed to reset counter:", err);
         resetMessageEl.innerText = "Error resetting counters";
@@ -208,6 +205,19 @@
         updateCounter();
       } catch (err) {
         console.error("Failed to send value:", err);
+      }
+    }
+
+    async function reduceValue(val) {
+      try {
+        await fetch(`${BACKEND_URL}/reduce`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ value: val })
+        });
+        updateCounter();
+      } catch (err) {
+        console.error("Failed to reduce value:", err);
       }
     }
 
